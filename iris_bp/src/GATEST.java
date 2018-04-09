@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Test {
+public class GATEST {
     public static void main(String args[]) throws Exception {
 
         ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // 存放所有数据
@@ -25,11 +25,14 @@ public class Test {
         System.out.println();
         System.out.println("训练集的数量："+alllist.size());
 
-        BPNN bpnn = new BPNN(in_num, out_num);
+        Chromosome chrom = new Chromosome(in_num,out_num);
+        chrom.initialRandomGene();
+        chrom.setGeneIntoNN();
+
         // 训练
         System.out.println("Train Start!");
         System.out.println(".............");
-        bpnn.Train(alllist);
+        chrom.getModel().Train(alllist);
         System.out.println("Train End!");
 
         // 测试
@@ -54,26 +57,30 @@ public class Test {
         normallist = testUtil.GetCheckList();
 
         int errorcount=0; // 分类错误的数量
-        resultList = bpnn.ForeCast(testList); // 测试
+        resultList = chrom.getModel().ForeCast(testList); // 测试
         all_num=resultList.size();
-        for (int i = 0; i < resultList.size(); i++) {
+        for (int i = 0; i < all_num; i++) {
             String checkString = "unknow";
             for (int j = 0; j < type_num; j++) {
                 if(resultList.get(i).get(j)==1.0){
                     checkString = outlist.get(j);
                     resultlist.add(checkString);
                 }
-                /*else{
-                    resultlist.add(checkString);
-                }*/
+//                else{
+//                    checkString = "unknow";
+//                    resultlist.add(checkString);
+//                }
             }
-            /*
-            if(checkString.equals("unknow"))
+            if(checkString.equals("unknow")){
                 errorcount++;
-            */
+                resultlist.add(checkString);
+            }
+
+
             if(checkString.equals(normallist.get(i)))
                 right++;
         }
+
         testUtil.WriteFile("D:\\Algorithm\\iris_bp\\result.txt",testList,in_num,resultlist);
 
         System.out.println("测试集的数量："+ (new Double(all_num)).intValue());
@@ -82,4 +89,5 @@ public class Test {
 
         System.out.println("分类结果存储在：D:\\Algorithm\\iris_bp\\result.txt");
     }
+
 }

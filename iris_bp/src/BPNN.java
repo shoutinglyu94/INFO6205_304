@@ -7,7 +7,7 @@ public class BPNN {
     // private static int LAYER = 3; // 三层神经网络
     private static int NodeNum = 10; // 每层的最多节点数
     private static final int ADJUST = 5; // 隐层节点数调节常数
-    private static final int MaxTrain = 100; // 最大训练次数
+    private static final int MaxTrain = 500; // 最大训练次数
     private static final double ACCU = 0.015; // 每次迭代允许的误差 iris:0.015
     private double ETA_W = 0.5; // 权值学习效率0.5
     private double ETA_T = 0.5; // 阈值学习效率
@@ -32,6 +32,27 @@ public class BPNN {
     private double[][] out; // 每个神经元的值经S型函数转化后的输出值，输入层就为原值
     private double[][] delta; // delta学习规则中的值
 
+    public BPNN(int in_num,int out_num){
+        this.in_num =in_num;
+        this.out_num = out_num;
+    }
+
+    public int getIn_num() {
+        return in_num;
+    }
+
+    public void setIn_num(int in_num) {
+        this.in_num = in_num;
+    }
+
+    public int getOut_num() {
+        return out_num;
+    }
+
+    public void setOut_num(int out_num) {
+        this.out_num = out_num;
+    }
+
     // 获得网络三层中神经元最多的数量
     public int GetMaxNum() {
         return Math.max(Math.max(in_num, hd_num), out_num);
@@ -48,17 +69,14 @@ public class BPNN {
     }
 
     // BPNN训练
-    public void Train(int in_number, int out_number,
-                      ArrayList<ArrayList<Double>> arraylist) throws IOException {
+    public void Train(ArrayList<ArrayList<Double>> arraylist) throws IOException {
         list = arraylist;
-        in_num = in_number;
-        out_num = out_number;
 
-        GetNums(in_num, out_num); // 获取输入层、隐层、输出层的节点数
+        //GetNums(in_num, out_num); // 获取输入层、隐层、输出层的节点数
         // SetEtaW(); // 设置学习率
         // SetEtaT();
 
-        InitNetWork(); // 初始化网络的权值和阈值
+        //InitNetWork(gene_in_weight,gene_out_weight); // 初始化网络的权值和阈值
 
         int datanum = list.size(); // 训练数据的组数
         int createsize = GetMaxNum(); // 比较创建存储每一层输出数据的数组
@@ -87,43 +105,47 @@ public class BPNN {
     }
 
     // 获取输入层、隐层、输出层的节点数，in_number、out_number分别为输入层节点数和输出层节点数
-    public void GetNums(int in_number, int out_number) {
+    public int GetNums(int in_number, int out_number) {
         in_num = in_number;
         out_num = out_number;
         hd_num = (int) Math.sqrt(in_num + out_num) + ADJUST;
         if (hd_num > NodeNum)
             hd_num = NodeNum; // 隐层节点数不能大于最大节点数
+
+        return hd_num;
     }
 
     // 初始化网络的权值和阈值
-    public void InitNetWork() {
+    public void InitNetWork(double[][] gene_in_weight,double[][] gene_out_weight) {
         // 初始化上一次权值量,范围为-0.5-0.5之间
         //in_hd_last = new double[in_num][hd_num];
         //hd_out_last = new double[hd_num][out_num];
 
         in_hd_weight = new double[in_num][hd_num];
-        for (int i = 0; i < in_num; i++)
-            for (int j = 0; j < hd_num; j++) {
-                int flag = 1; // 符号标志位(-1或者1)
-                if ((new Random().nextInt(2)) == 1)
-                    flag = 1;
-                else
-                    flag = -1;
-                in_hd_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化in-hidden的权值
-                //in_hd_last[i][j] = 0;
-            }
+        in_hd_weight = gene_in_weight.clone();
+//        for (int i = 0; i < in_num; i++)
+//            for (int j = 0; j < hd_num; j++) {
+//                int flag = 1; // 符号标志位(-1或者1)
+//                if ((new Random().nextInt(2)) == 1)
+//                    flag = 1;
+//                else
+//                    flag = -1;
+//                in_hd_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化in-hidden的权值
+//                //in_hd_last[i][j] = 0;
+//            }
 
         hd_out_weight = new double[hd_num][out_num];
-        for (int i = 0; i < hd_num; i++)
-            for (int j = 0; j < out_num; j++) {
-                int flag = 1; // 符号标志位(-1或者1)
-                if ((new Random().nextInt(2)) == 1)
-                    flag = 1;
-                else
-                    flag = -1;
-                hd_out_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化hidden-out的权值
-                //hd_out_last[i][j] = 0;
-            }
+        hd_out_weight = gene_out_weight.clone();
+//        for (int i = 0; i < hd_num; i++)
+//            for (int j = 0; j < out_num; j++) {
+//                int flag = 1; // 符号标志位(-1或者1)
+//                if ((new Random().nextInt(2)) == 1)
+//                    flag = 1;
+//                else
+//                    flag = -1;
+//                hd_out_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化hidden-out的权值
+//                //hd_out_last[i][j] = 0;
+//            }
 
         // 阈值均初始化为0
         in_hd_th = new double[hd_num];
@@ -299,9 +321,9 @@ public class BPNN {
                 out[0][i] = arraylist.get(cnd).get(i); // 为输入节点赋值
             Forward();
             for (int i = 0; i < out_num; i++) {
-                if (out[2][i] > 0 && out[2][i] < 0.5)
+                if (out[2][i] >= 0 && out[2][i] < 0.5)
                     out[2][i] = 0;
-                else if (out[2][i] > 0.5 && out[2][i] < 1) {
+                else if (out[2][i] > 0.5 && out[2][i] <= 1) {
                     out[2][i] = 1;
                 }
                 outlist.add(out[2][i]);
