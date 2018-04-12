@@ -1,16 +1,16 @@
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
 public class BPNN {
 
-    // private static int LAYER = 3; // 三层神经网络
-    private static int NodeNum = 10; // 每层的最多节点数
-    private static final int ADJUST = 5; // 隐层节点数调节常数
-    private static final int MaxTrain = 500; // 最大训练次数
-    private static final double ACCU = 0.015; // 每次迭代允许的误差 iris:0.015
-    private double ETA_W = 0.5; // 权值学习效率0.5
-    private double ETA_T = 0.5; // 阈值学习效率
+    // private static int LAYER = 3;
+    private static int NodeNum = 10; // Maximum number of neurons
+    private static final int ADJUST = 5; // Adjust hidden layer constant
+    private static final int MaxTrain = 100; // Maximum training times
+    private static final double ACCU = 0.015; // Accept Error Variance iris:0.015
+    private double ETA_W = 0.5; // Learning rate of weights
+    private double ETA_T = 0.5; // Learning rate of threshold
     private double accu;
 
     // 附加动量项
@@ -32,8 +32,8 @@ public class BPNN {
     private double[][] out; // 每个神经元的值经S型函数转化后的输出值，输入层就为原值
     private double[][] delta; // delta学习规则中的值
 
-    public BPNN(int in_num,int out_num){
-        this.in_num =in_num;
+    public BPNN(int in_num, int out_num) {
+        this.in_num = in_num;
         this.out_num = out_num;
     }
 
@@ -73,8 +73,8 @@ public class BPNN {
         list = arraylist;
 
         //GetNums(in_num, out_num); // 获取输入层、隐层、输出层的节点数
-        // SetEtaW(); // 设置学习率
-        // SetEtaT();
+        //SetEtaW(); // 设置学习率
+        //SetEtaT();
 
         //InitNetWork(gene_in_weight,gene_out_weight); // 初始化网络的权值和阈值
 
@@ -93,12 +93,12 @@ public class BPNN {
                 Backward(cnd); // 误差反向传播
 
             }
-            System.out.println("This is the " + (iter + 1)
-                    + " th trainning NetWork !");
-            accu = GetAccu();
-            System.out.println("All Samples Accuracy is " + accu);
-            if (accu < ACCU)
-                break;
+            //  System.out.println("This is the " + (iter + 1)
+            //        + " th trainning NetWork !");
+            this.accu = GetAccu();
+            //System.out.println("All Samples Accuracy is " + accu);
+            // if (accu < ACCU)
+            //     break;
 
         }
 
@@ -116,36 +116,26 @@ public class BPNN {
     }
 
     // 初始化网络的权值和阈值
-    public void InitNetWork(double[][] gene_in_weight,double[][] gene_out_weight) {
+    public void InitNetWork(double[][] gene_in_weight, double[][] gene_out_weight) {
         // 初始化上一次权值量,范围为-0.5-0.5之间
         //in_hd_last = new double[in_num][hd_num];
         //hd_out_last = new double[hd_num][out_num];
+        GetNums(in_num, out_num);
 
         in_hd_weight = new double[in_num][hd_num];
-        in_hd_weight = gene_in_weight.clone();
-//        for (int i = 0; i < in_num; i++)
-//            for (int j = 0; j < hd_num; j++) {
-//                int flag = 1; // 符号标志位(-1或者1)
-//                if ((new Random().nextInt(2)) == 1)
-//                    flag = 1;
-//                else
-//                    flag = -1;
-//                in_hd_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化in-hidden的权值
-//                //in_hd_last[i][j] = 0;
-//            }
+        for (int i = 0; i < in_num; i++) {
+            for (int j = 0; j < hd_num; j++) {
+                in_hd_weight[i][j] = gene_in_weight[i][j];
+            }
+        }
+
 
         hd_out_weight = new double[hd_num][out_num];
-        hd_out_weight = gene_out_weight.clone();
-//        for (int i = 0; i < hd_num; i++)
-//            for (int j = 0; j < out_num; j++) {
-//                int flag = 1; // 符号标志位(-1或者1)
-//                if ((new Random().nextInt(2)) == 1)
-//                    flag = 1;
-//                else
-//                    flag = -1;
-//                hd_out_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化hidden-out的权值
-//                //hd_out_last[i][j] = 0;
-//            }
+        for (int i = 0; i < hd_num; i++) {
+            for (int j = 0; j < out_num; j++) {
+                hd_out_weight[i][j] = gene_out_weight[i][j];
+            }
+        }
 
         // 阈值均初始化为0
         in_hd_th = new double[hd_num];
@@ -335,4 +325,7 @@ public class BPNN {
         return alloutlist;
     }
 
+    public double getAccu() {
+        return accu;
+    }
 }

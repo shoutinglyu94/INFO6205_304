@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class GATEST {
     public static void main(String args[]) throws Exception {
-
+    /*
         ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // 存放所有数据
         ArrayList<String> outlist = new ArrayList<String>(); // 存放分类的字符串
         int in_num = 0, out_num = 0; // 输入输出数据的个数
@@ -87,7 +87,10 @@ public class GATEST {
         System.out.println("分类正确的数量："+(new Double(right)).intValue());
         System.out.println("算法的分类正确率为："+right/all_num);
 
-        System.out.println("分类结果存储在：D:\\Algorithm\\iris_bp\\result.txt");
+        System.out.println("分类结果存储在：D:\\Algorithm\\iris_bp\\result.txt");*/
+        GA gatest = new GA();
+        gatest.caculte();
     }
+
 
 }

@@ -54,7 +54,7 @@ class DataUtil {
     }
 
     //返回归一化数据所需最大最小值
-    public double[][] GetMaxMin(){
+    public double[][] GetMaxMin() {
 
         return nom_data;
     }
@@ -78,7 +78,7 @@ class DataUtil {
                 if (readflag == 0) {
                     for (int i = 0; i < splits.length; i++)
                         try {
-                            everylist.add(Normalize(Double.valueOf(splits[i]),nom_data[i][0],nom_data[i][1]));
+                            everylist.add(Normalize(Double.valueOf(splits[i]), nom_data[i][0], nom_data[i][1]));
                             in_number++;
                         } catch (Exception e) {
                             if (!outlist.contains(splits[i]))
@@ -94,7 +94,7 @@ class DataUtil {
                 } else if (readflag == 1) {
                     for (int i = 0; i < splits.length; i++)
                         try {
-                            everylist.add(Normalize(Double.valueOf(splits[i]),nom_data[i][0],nom_data[i][1]));
+                            everylist.add(Normalize(Double.valueOf(splits[i]), nom_data[i][0], nom_data[i][1]));
                             in_number++;
                         } catch (Exception e) {
                             checklist.add(splits[i]); // 存放字符串形式的输出数据
@@ -112,23 +112,23 @@ class DataUtil {
     }
 
     //向文件写入分类结果
-    public void WriteFile(String filepath, ArrayList<ArrayList<Double>> list, int in_number,  ArrayList<String> resultlist) throws IOException{
+    public void WriteFile(String filepath, ArrayList<ArrayList<Double>> list, int in_number, ArrayList<String> resultlist) throws IOException {
         File file = new File(filepath);
         FileWriter fw = null;
         BufferedWriter writer = null;
         try {
             fw = new FileWriter(file);
             writer = new BufferedWriter(fw);
-            for(int i=0;i<list.size();i++){
-                for(int j=0;j<in_number;j++)
-                    writer.write(list.get(i).get(j)+",");
+            for (int i = 0; i < list.size(); i++) {
+                for (int j = 0; j < in_number; j++)
+                    writer.write(list.get(i).get(j) + ",");
                 writer.write(resultlist.get(i));
                 writer.newLine();
             }
             writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
+        } finally {
             writer.close();
             fw.close();
         }
@@ -136,10 +136,10 @@ class DataUtil {
 
 
     //学习样本归一化,找到输入样本数据的最大值和最小值
-    public void NormalizeData(String filepath) throws IOException{
+    public void NormalizeData(String filepath) throws IOException {
         //提前获得输入数据的个数   
         GetBeforIn(filepath);
-        int flag=1;
+        int flag = 1;
         nom_data = new double[in_data_num][2];
         String encoding = "GBK";
         File file = new File(filepath);
@@ -150,26 +150,25 @@ class DataUtil {
             String lineTxt = null;
             while ((lineTxt = bufferedReader.readLine()) != null) {
                 String splits[] = lineTxt.split(","); // 按','截取字符串
-                for (int i = 0; i < splits.length-1; i++){
-                    if(flag==1){
-                        nom_data[i][0]=Double.valueOf(splits[i]);
-                        nom_data[i][1]=Double.valueOf(splits[i]);
-                    }
-                    else{
-                        if(Double.valueOf(splits[i])>nom_data[i][0])
-                            nom_data[i][0]=Double.valueOf(splits[i]);
-                        if(Double.valueOf(splits[i])<nom_data[i][1])
-                            nom_data[i][1]=Double.valueOf(splits[i]);
+                for (int i = 0; i < splits.length - 1; i++) {
+                    if (flag == 1) {
+                        nom_data[i][0] = Double.valueOf(splits[i]);
+                        nom_data[i][1] = Double.valueOf(splits[i]);
+                    } else {
+                        if (Double.valueOf(splits[i]) > nom_data[i][0])
+                            nom_data[i][0] = Double.valueOf(splits[i]);
+                        if (Double.valueOf(splits[i]) < nom_data[i][1])
+                            nom_data[i][1] = Double.valueOf(splits[i]);
                     }
                 }
-                flag=0;
+                flag = 0;
             }
             bufferedReader.close();
         }
     }
 
     //归一化前获得输入数据的个数
-    public void GetBeforIn(String filepath) throws IOException{
+    public void GetBeforIn(String filepath) throws IOException {
         String encoding = "GBK";
         File file = new File(filepath);
         if (file.isFile() && file.exists()) { // 判断文件是否存在
@@ -179,14 +178,14 @@ class DataUtil {
             BufferedReader beforeReader = new BufferedReader(read);
             String beforetext = beforeReader.readLine();
             String splits[] = beforetext.split(",");
-            in_data_num = splits.length-1;
+            in_data_num = splits.length - 1;
             beforeReader.close();
         }
     }
 
     //归一化公式
-    public double Normalize(double x, double max, double min){
-        double y = 0.1+0.8*(x-min)/(max-min);
+    public double Normalize(double x, double max, double min) {
+        double y = 0.1 + 0.8 * (x - min) / (max - min);
         return y;
     }
 }

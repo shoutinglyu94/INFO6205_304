@@ -1,25 +1,27 @@
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 public class GA {
-    private List<Chromosome> population = new ArrayList<Chromosome>();
-    private int popSize = 100;//种群数量
-    private int geneSize;//基因最大长度
-    private int maxIterNum = 500;//最大迭代次数
-    private double mutationRate = 0.01;//基因变异的概率
-    private int maxMutationNum = 3;//最大变异步长
+    private ArrayList<Chromosome> population = new ArrayList<>();
+    private int popSize = 100;// Population Size
+    private int geneSize;//
+    private int maxIterNum = 100;// Maximum Generation Number
+    //private double mutationRate = 0.01;//基因变异的概率
+    //private int maxMutationNum = 3;//最大变异步长
 
-    private int generation = 1;//当前遗传到第几代
+    private int generation = 1;// Initial Generation
 
-    private double bestScore;//最好得分
-    private double worstScore;//最坏得分
-    private double totalScore;//总得分
-    private double averageScore;//平均得分
+    private double bestScore;// Best Score
+    private double worstScore;// Worst Score
+    private double totalScore;// Total Score
+    private double averageScore;// Average Score
+    private double[][] bestIn;
+    private double[][] bestOut;
+    ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
+    ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
 
-    private double x; //记录历史种群中最好的X值
-    private double y; //记录历史种群中最好的Y值
-    private int geneI;//x y所在代数
+    private int geneI;//bestIn bestOut
 
     public GA() {
 
@@ -27,8 +29,7 @@ public class GA {
 
     public void caculte() throws Exception {
 
-        ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
-        ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
+
         int in_num = 0, out_num = 0; // Input Number and Output Number
         DataUtil dataUtil = new DataUtil(); // Helper Class
         dataUtil.NormalizeData("D:\\Algorithm\\iris_bp\\train.txt");
@@ -42,9 +43,9 @@ public class GA {
 
         //Instantiate Generation
         generation = 1;
-        init(in_num,out_num,alllist);
+        init(in_num, out_num, alllist);
         while (generation < maxIterNum) {
-            //种群遗传
+            // generation evolvement
             evolve();
             print();
             generation++;
@@ -53,7 +54,7 @@ public class GA {
 
     /**
      * @Author:ShoutingLyu,ChangLiu
-     * @Description: 输出结果
+     * @Description:ResultsPrint Print out the results for each generation
      */
     private void print() {
         System.out.println("--------------------------------");
@@ -62,22 +63,20 @@ public class GA {
         System.out.println("the worst fitness is:" + worstScore);
         System.out.println("the average fitness is:" + averageScore);
         System.out.println("the total fitness is:" + totalScore);
-        System.out.println("geneI:" + geneI + "\tx:" + x + "\ty:" + y);
+        System.out.println("geneI:" + geneI);
+        //  System.out.println("geneI:" + geneI + "\tx:" + x + "\ty:" + y);
     }
 
 
     /**
      * @Author:ShoutingLyu,ChangLiu
-     * @Description: 初始化种群
+     * @Description:FirstGenerationInitiation Randomly choosing and setting weights into genes
      */
-    private void init(int in_num,int out_num,ArrayList<ArrayList<Double>> alllist) throws IOException {
+    private void init(int in_num, int out_num, ArrayList<ArrayList<Double>> alllist) throws IOException {
+        population = new ArrayList<Chromosome>();
         for (int i = 0; i < popSize; i++) {
-            population = new ArrayList<Chromosome>();
-            Chromosome chro = new Chromosome(in_num,out_num);
+            Chromosome chro = new Chromosome(in_num, out_num);
             chro.initialRandomGene();
-            chro.setGeneIntoNN();
-            chro.getModel().Train(alllist);
-            chro.setScore(chro.getModel().GetAccu());
             population.add(chro);
         }
         caculteScore();
@@ -85,43 +84,48 @@ public class GA {
 
     /**
      * @Author:ShoutingLyu,ChangLiu
-     * @Description:种群进行遗传
+     * @Description:Evolvement
      */
-    private void evolve() {
-        List<Chromosome> childPopulation = new ArrayList<Chromosome>();
-        //生成下一代种群
+    private void evolve() throws IOException {
+        // Generate the children generation
+        ArrayList<Chromosome> childPopulation = new ArrayList<Chromosome>();
+        System.out.println("Here is the " + generation + "th generation's evolvement.");
         while (childPopulation.size() < popSize) {
             Chromosome p1 = getParentChromosome();
+
             Chromosome p2 = getParentChromosome();
+
             List<Chromosome> children = Chromosome.genetic(p1, p2);
             if (children != null) {
                 for (Chromosome chro : children) {
                     childPopulation.add(chro);
+                    //System.out.println("printing children");
+                    //chro.printGene();
                 }
             }
         }
-        //新种群替换旧种群
-        List<Chromosome> t = population;
-        population = childPopulation;
+        // Replace parent population with new child population
+        ArrayList<Chromosome> t = population;
+        this.population = childPopulation;
         t.clear();
         t = null;
-        //基因突变
-        mutation();
-        //计算新种群的适应度
+        // Gene Mutation
+        //mutation();
+        // Caculate the fitness of the new generation
         caculteScore();
     }
 
     /**
      * @return
      * @Author:ShoutingLyu,ChangLiu
-     * @Description: 轮盘赌法选择可以遗传下一代的染色体
+     * @Description:SelectSurvivor Return a survival individual form parent generation using Roulette Algorithm
      */
-    private Chromosome getParentChromosome (){
+    private Chromosome getParentChromosome() {
         double slice = Math.random() * totalScore;
         double sum = 0;
         for (Chromosome chro : population) {
             sum += chro.getScore();
-            if (sum > slice && chro.getScore() >= averageScore) {
+            if (sum > slice && chro.getScore() <= averageScore) {
                 return chro;
             }
         }
@@ -130,61 +134,64 @@ public class GA {
 
     /**
      * @Author:ShoutingLyu,ChangLiu
-     * @Description: 计算种群适应度
+     * @Description:CaculatePopulationFitness
      */
-    private void caculteScore() {
+    private void caculteScore() throws IOException {
         setChromosomeScore(population.get(0));
         bestScore = population.get(0).getScore();
         worstScore = population.get(0).getScore();
         totalScore = 0;
         for (Chromosome chro : population) {
             setChromosomeScore(chro);
-            if (chro.getScore() > bestScore) { //设置最好基因值
+            if (chro.getScore() < bestScore) { // Set the best score
                 bestScore = chro.getScore();
-                if (y < bestScore) {
-                    x = changeX(chro);
-                    y = bestScore;
-                    geneI = generation;
-                }
+                geneI = generation;
+                bestIn = chro.getGene_in_weight();
+                bestOut = chro.getGene_out_weight();
             }
-            if (chro.getScore() < worstScore) { //设置最坏基因值
+            if (chro.getScore() > worstScore) { // Set the worst score
                 worstScore = chro.getScore();
             }
             totalScore += chro.getScore();
         }
         averageScore = totalScore / popSize;
-        //因为精度问题导致的平均值大于最好值，将平均值设置成最好值
-        averageScore = averageScore > bestScore ? bestScore : averageScore;
+        // If the average score is better than the best score, reset the average score
+        averageScore = averageScore < bestScore ? bestScore : averageScore;
+
     }
 
     /**
-     * 基因突变
+     * @Author:ShoutingLyu,ChangLiu
+     * @Description:Mutation
      */
-    private void mutation() {
-        for (Chromosome chro : population) {
-            if (Math.random() < mutationRate) { //发生基因突变
-                int mutationNum = (int) (Math.random() * maxMutationNum);
-                chro.mutation(mutationNum);
-            }
-        }
-    }
+//    private void mutation() {
+//        for (Chromosome chro : population) {
+//            if (Math.random() < mutationRate) { //发生基因突变
+//                int mutationNum = (int) (Math.random() * maxMutationNum);
+//                chro.mutation_gene_in_weight(mutationNum);
+//                chro.mutation_gene_out_weight(mutationNum);
+//            }
+//        }
+//    }
 
     /**
      * @param chro
      * @Author:ShoutingLyu,ChangLiu
-     * @Description: 设置染色体得分
+     * @Description: Caculate and set individual's score(average accuracy of trained model)
      */
-    private void setChromosomeScore(Chromosome chro) {
+    private void setChromosomeScore(Chromosome chro) throws IOException {
         if (chro == null) {
             return;
         }
-        double x = changeX(chro);
-        double y = caculateY(x);
-        chro.setScore(y);
+        chro.setGeneIntoNN();
+        chro.getModel().Train(alllist);
+        double accu = chro.getModel().getAccu();
+        chro.setScore(accu);
+        //System.out.println("current accuracy is " + accu);
 
     }
 
-    public void setPopulation(List<Chromosome> population) {
+    public void setPopulation(ArrayList<Chromosome> population) {
         this.population = population;
     }
 
@@ -200,13 +207,13 @@ public class GA {
         this.maxIterNum = maxIterNum;
     }
 
-    public void setMutationRate(double mutationRate) {
-        this.mutationRate = mutationRate;
-    }
-
-    public void setMaxMutationNum(int maxMutationNum) {
-        this.maxMutationNum = maxMutationNum;
-    }
+//    public void setMutationRate(double mutationRate) {
+//        this.mutationRate = mutationRate;
+//    }
+//
+//    public void setMaxMutationNum(int maxMutationNum) {
+//        this.maxMutationNum = maxMutationNum;
+//    }
 
     public double getBestScore() {
         return bestScore;
@@ -224,12 +231,5 @@ public class GA {
         return averageScore;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
 
 }
