@@ -7,8 +7,8 @@ public class GA {
     private int popSize = 100;// Population Size
     private int geneSize;//
     private int maxIterNum = 100;// Maximum Generation Number
-    //private double mutationRate = 0.01;//基因变异的概率
-    //private int maxMutationNum = 3;//最大变异步长
+    //private double mutationRate = 0.01;// Probability of Mutation
+    //private int maxMutationNum = 3;// Maximum Mutation Number
 
     private int generation = 1;// Initial Generation
 

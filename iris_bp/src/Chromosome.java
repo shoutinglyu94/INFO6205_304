@@ -5,7 +5,7 @@ import java.util.Random;
 public class Chromosome {
     private double[][] gene_in_weight;
     private double[][] gene_out_weight;
-    BPNN model;
+    private BPNN model;
     //Score hasn't been initialized
     private double score;
 
@@ -27,24 +27,24 @@ public class Chromosome {
         gene_in_weight = new double[in_num][hd_num];
         for (int i = 0; i < in_num; i++)
             for (int j = 0; j < hd_num; j++) {
-                int flag = 1; // 符号标志位(-1或者1)
+                int flag = 1;
                 if ((new Random().nextInt(2)) == 1)
                     flag = 1;
                 else
                     flag = -1;
-                gene_in_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化in-hidden的权值
+                gene_in_weight[i][j] = (new Random().nextDouble() / 2) * flag;
                 //in_hd_last[i][j] = 0;
             }
 
         gene_out_weight = new double[hd_num][out_num];
         for (int i = 0; i < hd_num; i++)
             for (int j = 0; j < out_num; j++) {
-                int flag = 1; // 符号标志位(-1或者1)
+                int flag = 1;
                 if ((new Random().nextInt(2)) == 1)
                     flag = 1;
                 else
                     flag = -1;
-                gene_out_weight[i][j] = (new Random().nextDouble() / 2) * flag; // 初始化hidden-out的权值
+                gene_out_weight[i][j] = (new Random().nextDouble() / 2) * flag;
                 //hd_out_last[i][j] = 0;
             }
     }
@@ -55,7 +55,7 @@ public class Chromosome {
         for (int i = 0; i < mutationNum; i++) {
             int at_X = ((int) (Math.random() * length)) % length;
             int at_Y = ((int) (Math.random() * width)) % width;
-            int flag = 1; // 符号标志位(-1或者1)
+            int flag = 1;
             if ((new Random().nextInt(2)) == 1)
                 flag = 1;
             else
@@ -71,7 +71,7 @@ public class Chromosome {
         for (int i = 0; i < mutationNum; i++) {
             int at_X = ((int) (Math.random() * length)) % length;
             int at_Y = ((int) (Math.random() * width)) % width;
-            int flag = 1; // 符号标志位(-1或者1)
+            int flag = 1;
             if ((new Random().nextInt(2)) == 1)
                 flag = 1;
             else
@@ -81,7 +81,7 @@ public class Chromosome {
         }
     }
 
-    public static double[][] clone_gene_in_weight(final Chromosome c) {
+    private static double[][] clone_gene_in_weight(final Chromosome c) {
         if (c == null || c.gene_in_weight == null)
             return null;
         double[][] clone = new double[c.gene_in_weight.length][c.gene_in_weight[0].length];
@@ -93,7 +93,7 @@ public class Chromosome {
         return clone;
     }
 
-    public static double[][] clone_gene_out_weight(final Chromosome c) {
+    private static double[][] clone_gene_out_weight(final Chromosome c) {
         if (c == null || c.gene_out_weight == null)
             return null;
         double[][] clone = new double[c.gene_out_weight.length][c.gene_out_weight[0].length];
@@ -105,7 +105,7 @@ public class Chromosome {
         return clone;
     }
 
-    public static Chromosome clone(final Chromosome c) {
+    private static Chromosome clone(final Chromosome c) {
         if (c == null || c.gene_in_weight == null || c.gene_out_weight == null)
             return null;
         Chromosome copy = new Chromosome(c.getModel().getIn_num(), c.getModel().getOut_num());
@@ -168,31 +168,25 @@ public class Chromosome {
         }
     }
 
-    public BPNN getModel() {
-        return model;
-    }
+    public BPNN getModel() { return model; }
 
     public double getScore() {
         return score;
     }
 
-    public void setScore(double score) {
-        this.score = score;
-    }
+    public void setScore(double score) { this.score = score; }
 
     public double[][] getGene_in_weight() {
         return gene_in_weight;
     }
 
-    public void setGene_in_weight(double[][] gene_in_weight) {
-        this.gene_in_weight = gene_in_weight;
-    }
+    private void setGene_in_weight(double[][] gene_in_weight) { this.gene_in_weight = gene_in_weight; }
 
     public double[][] getGene_out_weight() {
         return gene_out_weight;
     }
 
-    public void setGene_out_weight(double[][] gene_out_weight) {
+    private void setGene_out_weight(double[][] gene_out_weight) {
         this.gene_out_weight = gene_out_weight;
     }
 
