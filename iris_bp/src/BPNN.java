@@ -18,19 +18,19 @@ public class BPNN {
     //private double[][] in_hd_last; // 上一次的权值调整量
     //private double[][] hd_out_last;
 
-    private int in_num; // 输入层节点数
-    private int hd_num; // 隐层节点数
-    private int out_num; // 输入出节点数
+    private int in_num; // input number
+    private int hd_num; // hidden number
+    private int out_num; // output number
 
-    private ArrayList<ArrayList<Double>> list = new ArrayList<>(); // 输入输出数据
+    private ArrayList<ArrayList<Double>> list = new ArrayList<>(); // data list
 
-    private double[][] in_hd_weight; // BP网络in-hidden突触权值
-    private double[][] hd_out_weight; // BP网络hidden_out突触权值
-    private double[] in_hd_th; // BP网络in-hidden阈值
-    private double[] hd_out_th; // BP网络hidden-out阈值
+    private double[][] in_hd_weight; // BP network in-hidden weights
+    private double[][] hd_out_weight; // BP network hidden_out weights
+    private double[] in_hd_th; // BP in-hidden threshod
+    private double[] hd_out_th; // BP hidden-out threshod
 
-    private double[][] out; // 每个神经元的值经S型函数转化后的输出值，输入层就为原值
-    private double[][] delta; // delta学习规则中的值
+    private double[][] out; // output value after sigmod function
+    private double[][] delta; // delta
 
     public BPNN(int in_num, int out_num) {
         this.in_num = in_num;
@@ -53,44 +53,44 @@ public class BPNN {
         this.out_num = out_num;
     }
 
-    // 获得网络三层中神经元最多的数量
+
     public int GetMaxNum() {
         return Math.max(Math.max(in_num, hd_num), out_num);
     }
 
-    // 设置权值学习率
+    // Set Weights Learning Rate
     public void SetEtaW() {
         ETA_W = 0.5;
     }
 
-    // 设置阈值学习率
+    // Set Threshod Learning Rate
     public void SetEtaT() {
         ETA_T = 0.5;
     }
 
-    // BPNN训练
+    // BPNN Trainning
     public void Train(ArrayList<ArrayList<Double>> arraylist) throws IOException {
         list = arraylist;
 
-        //GetNums(in_num, out_num); // 获取输入层、隐层、输出层的节点数
-        //SetEtaW(); // 设置学习率
-        //SetEtaT();
+        //GetNums(in_num, out_num);
+        SetEtaW();
+        SetEtaT();
 
-        //InitNetWork(gene_in_weight,gene_out_weight); // 初始化网络的权值和阈值
+        //InitNetWork(gene_in_weight,gene_out_weight);
 
-        int datanum = list.size(); // 训练数据的组数
+        int datanum = list.size(); // number of groups
         int createsize = GetMaxNum(); // 比较创建存储每一层输出数据的数组
         out = new double[3][createsize];
 
         for (int iter = 0; iter < MaxTrain; iter++) {
             for (int cnd = 0; cnd < datanum; cnd++) {
-                // 第一层输入节点赋值
+                // give value to the first layer
 
                 for (int i = 0; i < in_num; i++) {
-                    out[0][i] = list.get(cnd).get(i); // 为输入层节点赋值，其输入与输出相同
+                    out[0][i] = list.get(cnd).get(i);
                 }
-                Forward(); // 前向传播
-                Backward(cnd); // 误差反向传播
+                Forward(); // Forward Propagation
+                Backward(cnd); // BP Process
 
             }
             //  System.out.println("This is the " + (iter + 1)
@@ -104,18 +104,18 @@ public class BPNN {
 
     }
 
-    // 获取输入层、隐层、输出层的节点数，in_number、out_number分别为输入层节点数和输出层节点数
+    // Get hidden number from input number and output number，in_number、out_number
     public int GetNums(int in_number, int out_number) {
         in_num = in_number;
         out_num = out_number;
         hd_num = (int) Math.sqrt(in_num + out_num) + ADJUST;
         if (hd_num > NodeNum)
-            hd_num = NodeNum; // 隐层节点数不能大于最大节点数
+            hd_num = NodeNum; // hidden number should not be larger than maximum number among layers
 
         return hd_num;
     }
 
-    // 初始化网络的权值和阈值
+    // Instantiate the weights for the network
     public void InitNetWork(double[][] gene_in_weight, double[][] gene_out_weight) {
         // 初始化上一次权值量,范围为-0.5-0.5之间
         //in_hd_last = new double[in_num][hd_num];
@@ -137,7 +137,7 @@ public class BPNN {
             }
         }
 
-        // 阈值均初始化为0
+        // all initial threshod is 0
         in_hd_th = new double[hd_num];
         for (int k = 0; k < hd_num; k++)
             in_hd_th[k] = 0;
@@ -148,7 +148,7 @@ public class BPNN {
 
     }
 
-    // 计算单个样本的误差
+    // caculate the error for an individual
     public double GetError(int cnd) {
         double ans = 0;
         for (int i = 0; i < out_num; i++)
@@ -157,7 +157,7 @@ public class BPNN {
         return ans;
     }
 
-    // 计算所有样本的平均精度
+    // Caculate the average accuracy (variance)
     public double GetAccu() {
         double ans = 0;
         int num = list.size();
@@ -174,9 +174,9 @@ public class BPNN {
         return ans / num;
     }
 
-    // 前向传播
+    // Forward Propagation
     public void Forward() {
-        // 计算隐层节点的输出值
+        // Caculate the output value of from the hidden layer
         for (int j = 0; j < hd_num; j++) {
             double v = 0;
             for (int i = 0; i < in_num; i++)
@@ -184,7 +184,7 @@ public class BPNN {
             v += in_hd_th[j];
             out[1][j] = Sigmoid(v);
         }
-        // 计算输出层节点的输出值
+        // Caculate the output value of from the output layer
         for (int j = 0; j < out_num; j++) {
             double v = 0;
             for (int i = 0; i < hd_num; i++)
@@ -194,18 +194,18 @@ public class BPNN {
         }
     }
 
-    // 误差反向传播
+    // BP
     public void Backward(int cnd) {
-        CalcDelta(cnd); // 计算权值调整量
-        UpdateNetWork(); // 更新BP神经网络的权值和阈值
+        CalcDelta(cnd); // Caculate the adjustment of weights
+        UpdateNetWork();
     }
 
-    // 计算delta调整量
+
     public void CalcDelta(int cnd) {
 
         int createsize = GetMaxNum(); // 比较创建数组
         delta = new double[3][createsize];
-        // 计算输出层的delta值
+        // output layer data
         for (int i = 0; i < out_num; i++) {
             delta[2][i] = (list.get(cnd).get(in_num + i) - out[2][i])
                     * SigmoidDerivative(out[2][i]);
@@ -279,27 +279,27 @@ public class BPNN {
             return y;
     }
 
-    // log-sigmoid函数
+    // log-sigmoid
     public double Sigmoid(double x) {
         return (double) (1 / (1 + Math.exp(-x)));
     }
 
-    // log-sigmoid函数的倒数
+    // log-sigmoid
     public double SigmoidDerivative(double y) {
         return (double) (y * (1 - y));
     }
 
-    // tan-sigmoid函数
+    // tan-sigmoid
     public double TSigmoid(double x) {
         return (double) ((1 - Math.exp(-x)) / (1 + Math.exp(-x)));
     }
 
-    // tan-sigmoid函数的倒数
+    // tan-sigmoid
     public double TSigmoidDerivative(double y) {
         return (double) (1 - (y * y));
     }
 
-    // 分类预测函数
+    // Prediction
     public ArrayList<ArrayList<Double>> ForeCast(
             ArrayList<ArrayList<Double>> arraylist) {
 

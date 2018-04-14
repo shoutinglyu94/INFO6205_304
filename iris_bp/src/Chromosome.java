@@ -18,7 +18,7 @@ public class Chromosome {
     public void setGeneIntoNN() {
         model.InitNetWork(gene_in_weight, gene_out_weight);
     }
-
+    // Randomly choosing weights of the model
     public void initialRandomGene() {
         int hd_num = model.GetNums(model.getIn_num(), model.getOut_num());
         int in_num = model.getIn_num();
@@ -32,7 +32,7 @@ public class Chromosome {
                     flag = 1;
                 else
                     flag = -1;
-                gene_in_weight[i][j] = (new Random().nextDouble() / 2) * flag;
+                gene_in_weight[i][j] = (new Random(1).nextDouble() / 2) * flag;
                 //in_hd_last[i][j] = 0;
             }
 
@@ -44,7 +44,7 @@ public class Chromosome {
                     flag = 1;
                 else
                     flag = -1;
-                gene_out_weight[i][j] = (new Random().nextDouble() / 2) * flag;
+                gene_out_weight[i][j] = (new Random(1).nextDouble() / 2) * flag;
                 //hd_out_last[i][j] = 0;
             }
     }
@@ -114,6 +114,7 @@ public class Chromosome {
         return copy;
     }
 
+    // Generate child chromosome from two parent chromosome
     public static List<Chromosome> genetic(Chromosome p1, Chromosome p2) {
         if (p1 == null || p2 == null)
             return null;

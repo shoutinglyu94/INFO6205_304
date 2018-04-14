@@ -6,16 +6,17 @@ public class GA {
     private ArrayList<Chromosome> population = new ArrayList<>();
     private int popSize = 100;// Population Size
     private int geneSize;//
-    private int maxIterNum = 100;// Maximum Generation Number
-    //private double mutationRate = 0.01;// Probability of Mutation
-    //private int maxMutationNum = 3;// Maximum Mutation Number
+    private int maxIterNum = 99;// Maximum Generation Number
+    private double mutationRate = 0.01;// Probability of Mutation
+    private int maxMutationNum = 3;// Maximum Mutation Number
 
-    private int generation = 1;// Initial Generation
+    private int generation;// Initial Generation
 
     private double bestScore;// Best Score
     private double worstScore;// Worst Score
     private double totalScore;// Total Score
     private double averageScore;// Average Score
+    private double[] scoreList;
     private double[][] bestIn;
     private double[][] bestOut;
     ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
@@ -24,12 +25,9 @@ public class GA {
     private int geneI;//bestIn bestOut
 
     public GA() {
-
+        this.scoreList = new double[maxIterNum+1];
     }
-
     public void caculte() throws Exception {
-
-
         int in_num = 0, out_num = 0; // Input Number and Output Number
         DataUtil dataUtil = new DataUtil(); // Helper Class
         dataUtil.NormalizeData("D:\\Algorithm\\iris_bp\\train.txt");
@@ -40,9 +38,8 @@ public class GA {
         alllist = dataUtil.GetList(); // Get the initial dataset
         outlist = dataUtil.GetOutList();
 
-
         //Instantiate Generation
-        generation = 1;
+        generation = 0;
         init(in_num, out_num, alllist);
         while (generation < maxIterNum) {
             // generation evolvement
@@ -64,9 +61,9 @@ public class GA {
         System.out.println("the average fitness is:" + averageScore);
         System.out.println("the total fitness is:" + totalScore);
         System.out.println("geneI:" + geneI);
+        scoreList[generation] = averageScore;
         //  System.out.println("geneI:" + geneI + "\tx:" + x + "\ty:" + y);
     }
-
 
     /**
      * @Author:ShoutingLyu,ChangLiu
@@ -110,7 +107,7 @@ public class GA {
         t.clear();
         t = null;
         // Gene Mutation
-        //mutation();
+        mutation();
         // Caculate the fitness of the new generation
         caculteScore();
     }
@@ -164,15 +161,15 @@ public class GA {
      * @Author:ShoutingLyu,ChangLiu
      * @Description:Mutation
      */
-//    private void mutation() {
-//        for (Chromosome chro : population) {
-//            if (Math.random() < mutationRate) { //发生基因突变
-//                int mutationNum = (int) (Math.random() * maxMutationNum);
-//                chro.mutation_gene_in_weight(mutationNum);
-//                chro.mutation_gene_out_weight(mutationNum);
-//            }
-//        }
-//    }
+    private void mutation() {
+        for (Chromosome chro : population) {
+            if (Math.random() < mutationRate) {
+                int mutationNum = (int) (Math.random() * maxMutationNum);
+                chro.mutation_gene_in_weight(mutationNum);
+                chro.mutation_gene_out_weight(mutationNum);
+            }
+        }
+    }
 
     /**
      * @param chro
@@ -207,13 +204,13 @@ public class GA {
         this.maxIterNum = maxIterNum;
     }
 
-//    public void setMutationRate(double mutationRate) {
-//        this.mutationRate = mutationRate;
-//    }
-//
-//    public void setMaxMutationNum(int maxMutationNum) {
-//        this.maxMutationNum = maxMutationNum;
-//    }
+    public void setMutationRate(double mutationRate) {
+        this.mutationRate = mutationRate;
+    }
+
+    public void setMaxMutationNum(int maxMutationNum) {
+        this.maxMutationNum = maxMutationNum;
+    }
 
     public double getBestScore() {
         return bestScore;
@@ -231,5 +228,11 @@ public class GA {
         return averageScore;
     }
 
+    public double[] getScoreList() {
+        return scoreList;
+    }
 
+    public void setScoreList(double[] scoreList) {
+        this.scoreList = scoreList;
+    }
 }
