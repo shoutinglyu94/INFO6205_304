@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class GA {
+
     private PriorityQueue<Chromosome> population;
     private int popSize = 100;// Population Size
     private int maxIterNum = 50;// Maximum Generation Number
@@ -18,7 +19,7 @@ public class GA {
     private double[][] bestOut;
     private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
     private ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
-
+    private String memoryOnDisk="C:\\NEU2017\\Algorithum\\Final_Project\\iris_bp\\iris_bp\\train.txt";//The location of Memory
     private int geneI;//bestIn bestOut
 
     public GA() {
@@ -29,9 +30,9 @@ public class GA {
     public void caculte() throws Exception {
         int in_num = 0, out_num = 0; // Input Number and Output Number
         DataUtil dataUtil = new DataUtil(); // Helper Class
-        dataUtil.NormalizeData("D:\\Algorithm\\iris_bp\\train.txt");
+        dataUtil.NormalizeData(memoryOnDisk);
         dataUtil.SetTypeNum(3); // Set the number of output types
-        dataUtil.ReadFile("D:\\Algorithm\\iris_bp\\train.txt", ",", 0);
+        dataUtil.ReadFile(memoryOnDisk, ",", 0);
         in_num = dataUtil.GetInNum(); // Get the number of input data
         out_num = dataUtil.GetOutNum(); // Get the number of output data
         alllist = dataUtil.GetList(); // Get the initial dataset
@@ -53,20 +54,22 @@ public class GA {
      * @description Print out the results for each generation
      */
     private void print() {
-        System.out.println("--------------------------------");
-        System.out.println("the generation is:" + generation);
-        System.out.println("the best y is:" + bestScore);
-        System.out.println("the worst fitness is:" + worstScore);
-        System.out.println("the average fitness is:" + averageScore);
-        System.out.println("the total fitness is:" + totalScore);
-        System.out.println("geneI:" + geneI);
+        String a = "--------------------------------\n";
+        a = a + "the generation is:" + generation + "\n";
+        a = a + "the best fitness is:" + bestScore + "\n";
+        a = a + "the worst fitness is:" + worstScore + "\n";
+        a = a + "the average fitness is:" + averageScore + "\n";
+        a = a + "the total fitness is:" + totalScore + "\n";
+        a = a + "geneI:" + geneI + "\n";
+        TestLog.addLog(a);
         scoreList[generation] = averageScore;
         bestscoreList[generation] = bestScore;
     }
 
     /**
      * @author ShoutingLyu, ChangLiu
-     * @description Create the 1st generation and randomly choose and set weight into genes
+     * @description Create the 1st generation and randomly choose and set weight
+     * into genes
      */
     private void init(int in_num, int out_num, ArrayList<ArrayList<Double>> alllist) throws IOException {
         population = new PriorityQueue<>(new ChromosomeComparator());
@@ -90,7 +93,6 @@ public class GA {
         this.averageScore = totalScore / popSize;
     }
 
-
     /**
      * @author ShoutingLyu, ChangLiu
      * @description Evolvement
@@ -98,7 +100,8 @@ public class GA {
     private void evolve() throws IOException {
         // Generate the children generation
         ArrayList<Chromosome> childList = new ArrayList<>();
-        System.out.println("Here is the " + generation + "th generation's evolvement.");
+        //   System.out.println("Here is the " + generation + "th generation's evolvement.");
+        TestLog.addLog("Here is the " + generation + "th generation's evolvement.");
         while (childList.size() < 2 * popSize) {
             Chromosome p1 = getParentChromosome();
             Chromosome p2 = getParentChromosome();
@@ -140,9 +143,9 @@ public class GA {
     }
 
     /**
-     * @return
-     * @author ShoutingLyu, ChangLiu
-     * @description Select an individual from parent generation using Roulette Algorithm
+     * @return @author ShoutingLyu, ChangLiu
+     * @description Select an individual from parent generation using Roulette
+     * Algorithm
      */
     private Chromosome getParentChromosome() {
         double slice = Math.random() * totalScore;
@@ -158,7 +161,8 @@ public class GA {
 
     /**
      * @author ShoutingLyu, ChangLiu
-     * @description Calculate best, worst, average, and total fitness for a generation
+     * @description Calculate best, worst, average, and total fitness for a
+     * generation
      */
     private void caculteScore() throws IOException {
         if (1 / population.peek().getScore() > bestScore) {
@@ -184,7 +188,8 @@ public class GA {
     /**
      * @param mutationList
      * @author ShoutingLyu, ChangLiu
-     * @description Mutate some of the individuals randomly among the mutationList
+     * @description Mutate some of the individuals randomly among the
+     * mutationList
      */
     private void mutation(ArrayList<Chromosome> mutationList) {
         for (Chromosome chro : mutationList) {
@@ -214,20 +219,22 @@ public class GA {
     }
 
     class ChromosomeComparator implements Comparator<Chromosome> {
+
         @Override
         public int compare(Chromosome o1, Chromosome o2) {
             if (o1.getScore() < o2.getScore()) {
                 return -1;
             } else if (o1.getScore() > o2.getScore()) {
                 return +1;
-            } else return 0;
+            } else {
+                return 0;
+            }
         }
     }
 
     public void setPopSize(int popSize) {
         this.popSize = popSize;
     }
-
 
     public void setMaxIterNum(int maxIterNum) {
         this.maxIterNum = maxIterNum;
@@ -265,4 +272,3 @@ public class GA {
         return bestscoreList;
     }
 }
-

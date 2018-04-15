@@ -78,7 +78,7 @@ public class Chromosome {
         }
     }
 
-    private static double[][] clone_gene_in_weight(final Chromosome c) {
+    public static double[][] clone_gene_in_weight(final Chromosome c) {
         if (c == null || c.gene_in_weight == null)
             return null;
         double[][] clone = new double[c.gene_in_weight.length][c.gene_in_weight[0].length];
@@ -102,7 +102,7 @@ public class Chromosome {
         return clone;
     }
 
-    private static Chromosome clone(final Chromosome c) {
+    public static Chromosome clone(final Chromosome c) {
         if (c == null || c.gene_in_weight == null || c.gene_out_weight == null)
             return null;
         Chromosome copy = new Chromosome(c.getModel().getIn_num(), c.getModel().getOut_num());
@@ -182,7 +182,7 @@ public class Chromosome {
         return gene_in_weight;
     }
 
-    private void setGene_in_weight(double[][] gene_in_weight) {
+    public void setGene_in_weight(double[][] gene_in_weight) {
         this.gene_in_weight = gene_in_weight;
     }
 
@@ -190,7 +190,7 @@ public class Chromosome {
         return gene_out_weight;
     }
 
-    private void setGene_out_weight(double[][] gene_out_weight) {
+    public void setGene_out_weight(double[][] gene_out_weight) {
         this.gene_out_weight = gene_out_weight;
     }
 

@@ -1,4 +1,3 @@
-package finalprojctalgorithum;
 import java.util.ArrayList;
 
 public class GATEST {
