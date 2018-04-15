@@ -1,22 +1,19 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GA {
-    private ArrayList<Chromosome> population = new ArrayList<>();
+    private PriorityQueue<Chromosome> population;
     private int popSize = 100;// Population Size
-    private int geneSize;//
-    private int maxIterNum = 99;// Maximum Generation Number
+    private int maxIterNum = 50;// Maximum Generation Number
     private double mutationRate = 0.01;// Probability of Mutation
     private int maxMutationNum = 3;// Maximum Mutation Number
-
     private int generation;// Initial Generation
-
     private double bestScore;// Best Score
     private double worstScore;// Worst Score
     private double totalScore;// Total Score
     private double averageScore;// Average Score
     private double[] scoreList;
+    private double[] bestscoreList;
     private double[][] bestIn;
     private double[][] bestOut;
     ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
@@ -26,6 +23,7 @@ public class GA {
 
     public GA() {
         this.scoreList = new double[maxIterNum+1];
+        bestscoreList = new double[maxIterNum+1];
     }
     public void caculte() throws Exception {
         int in_num = 0, out_num = 0; // Input Number and Output Number
@@ -62,6 +60,7 @@ public class GA {
         System.out.println("the total fitness is:" + totalScore);
         System.out.println("geneI:" + geneI);
         scoreList[generation] = averageScore;
+        bestscoreList[generation] = bestScore;
         //  System.out.println("geneI:" + geneI + "\tx:" + x + "\ty:" + y);
     }
 
@@ -70,14 +69,28 @@ public class GA {
      * @Description:FirstGenerationInitiation Randomly choosing and setting weights into genes
      */
     private void init(int in_num, int out_num, ArrayList<ArrayList<Double>> alllist) throws IOException {
-        population = new ArrayList<Chromosome>();
+        population = new PriorityQueue<>(new ChromosomeComparator());
         for (int i = 0; i < popSize; i++) {
             Chromosome chro = new Chromosome(in_num, out_num);
             chro.initialRandomGene();
-            population.add(chro);
+            setChromosomeScore(chro);
+            population.offer(chro);
         }
-        caculteScore();
+        this.bestScore = 1/population.peek().getScore();
+        bestIn = population.peek().getGene_in_weight();
+        bestOut = population.peek().getGene_out_weight();
+        this.worstScore = 1/population.peek().getScore();
+        totalScore = 0;
+        for (Chromosome chro : population) {
+            if (1/chro.getScore() < worstScore) { // Set the worst score
+                this.worstScore = 1/chro.getScore();
+            }
+            this.totalScore += (1/chro.getScore());
+        }
+        this.averageScore = totalScore / popSize;
     }
+
+
 
     /**
      * @Author:ShoutingLyu,ChangLiu
@@ -85,31 +98,46 @@ public class GA {
      */
     private void evolve() throws IOException {
         // Generate the children generation
-        ArrayList<Chromosome> childPopulation = new ArrayList<Chromosome>();
+        ArrayList<Chromosome> childList = new ArrayList<>();
         System.out.println("Here is the " + generation + "th generation's evolvement.");
-        while (childPopulation.size() < popSize) {
+        while (childList.size() < 2*popSize) {
             Chromosome p1 = getParentChromosome();
-
             Chromosome p2 = getParentChromosome();
-
             List<Chromosome> children = Chromosome.genetic(p1, p2);
             if (children != null) {
                 for (Chromosome chro : children) {
-                    childPopulation.add(chro);
-                    //System.out.println("printing children");
-                    //chro.printGene();
+                    childList.add(chro);
                 }
             }
         }
-        // Replace parent population with new child population
-        ArrayList<Chromosome> t = population;
-        this.population = childPopulation;
-        t.clear();
-        t = null;
         // Gene Mutation
-        mutation();
+        mutation(childList);
+        PriorityQueue<Chromosome> childPopulation = new PriorityQueue<>(new ChromosomeComparator());
+        for(Chromosome chro: childList){
+            setChromosomeScore(chro);
+            childPopulation.offer(chro);
+        }
+
+        PriorityQueue<Chromosome> resultPopulation = new PriorityQueue<>(new ChromosomeComparator());
+        for(int i=0;i<popSize/2;i++){
+            resultPopulation.offer(childPopulation.poll());
+            resultPopulation.offer(population.poll());
+        }
+
+        // Replace parent population with new result population
+        PriorityQueue<Chromosome> p1 = population;
+        PriorityQueue<Chromosome> p2 = childPopulation;
+        ArrayList<Chromosome> L1 = childList;
+        this.population = resultPopulation;
+        p1.clear();
+        p2.clear();
+        L1.clear();
+        L1=null;
+        p1 = null;
+        p2 =null;
         // Caculate the fitness of the new generation
         caculteScore();
+
     }
 
     /**
@@ -121,8 +149,8 @@ public class GA {
         double slice = Math.random() * totalScore;
         double sum = 0;
         for (Chromosome chro : population) {
-            sum += chro.getScore();
-            if (sum > slice && chro.getScore() <= averageScore) {
+            sum += 1/chro.getScore();
+            if (sum > slice && 1/chro.getScore() >= averageScore) {
                 return chro;
             }
         }
@@ -134,26 +162,23 @@ public class GA {
      * @Description:CaculatePopulationFitness
      */
     private void caculteScore() throws IOException {
-        setChromosomeScore(population.get(0));
-        bestScore = population.get(0).getScore();
-        worstScore = population.get(0).getScore();
+        if(1/population.peek().getScore()>bestScore){
+            bestScore = 1/population.peek().getScore();
+            geneI = generation;
+            bestIn = population.peek().getGene_in_weight();
+            bestOut = population.peek().getGene_out_weight();
+        }
+        worstScore = 1/population.peek().getScore();
         totalScore = 0;
         for (Chromosome chro : population) {
-            setChromosomeScore(chro);
-            if (chro.getScore() < bestScore) { // Set the best score
-                bestScore = chro.getScore();
-                geneI = generation;
-                bestIn = chro.getGene_in_weight();
-                bestOut = chro.getGene_out_weight();
+            if (1/chro.getScore() < worstScore) { // Set the worst score
+                worstScore = 1/chro.getScore();
             }
-            if (chro.getScore() > worstScore) { // Set the worst score
-                worstScore = chro.getScore();
-            }
-            totalScore += chro.getScore();
+            totalScore += (1/chro.getScore());
         }
         averageScore = totalScore / popSize;
         // If the average score is better than the best score, reset the average score
-        averageScore = averageScore < bestScore ? bestScore : averageScore;
+        averageScore = averageScore > bestScore ? bestScore : averageScore;
 
     }
 
@@ -161,8 +186,8 @@ public class GA {
      * @Author:ShoutingLyu,ChangLiu
      * @Description:Mutation
      */
-    private void mutation() {
-        for (Chromosome chro : population) {
+    private void mutation(ArrayList<Chromosome> mutationList) {
+        for (Chromosome chro : mutationList) {
             if (Math.random() < mutationRate) {
                 int mutationNum = (int) (Math.random() * maxMutationNum);
                 chro.mutation_gene_in_weight(mutationNum);
@@ -188,17 +213,21 @@ public class GA {
 
     }
 
-    public void setPopulation(ArrayList<Chromosome> population) {
-        this.population = population;
+    class ChromosomeComparator implements Comparator<Chromosome> {
+        @Override
+        public int compare(Chromosome o1, Chromosome o2) {
+            if(o1.getScore() <o2.getScore()){
+                return -1;
+            }else if(o1.getScore()>o2.getScore()){
+                return +1;
+            }else return 0;
+        }
     }
 
     public void setPopSize(int popSize) {
         this.popSize = popSize;
     }
 
-    public void setGeneSize(int geneSize) {
-        this.geneSize = geneSize;
-    }
 
     public void setMaxIterNum(int maxIterNum) {
         this.maxIterNum = maxIterNum;
@@ -232,7 +261,8 @@ public class GA {
         return scoreList;
     }
 
-    public void setScoreList(double[] scoreList) {
-        this.scoreList = scoreList;
+    public double[] getBestscoreList() {
+        return bestscoreList;
     }
 }
+
