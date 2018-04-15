@@ -1,9 +1,14 @@
-# INFO6205_304
-Genetic Algorithm Project:
+# INFO6205_304 Genetic Algorithm Project
 
-Generally,the goal of our project is to improve neural network using genetic algorithm. The basic question we are going to solve is the classic MINST digit number classification using BP nerual network. Instead of using the XAVIER or other method to initiate the weights for each model, we radomly choose the initial weights for the first generation of the classifiers and let the genetic algorithm select the best initial weights for the model. Finally, we compared the perfomance of our model to others which trained the model straightly. 
+Breif Introduction
+
+Weight initialization can have a profound impact on both the convergence rate and final quality of a network and Genetic Algorithm is a very useful approach on NP hard problem. In this project, we created a genetic algorithm to improve weight initialization for back propagation neural network. The problem our neural network is trying to solve is a classical recognition problem on iris flower. There are four decimal numbers as input data which represent the features of three types of iris flower, and the trained model is used to recognize the type of an iris flower.
+
+The data set we used is public in the UCI Machine Learning Repository: https://archive.ics.uci.edu/ml/datasets/iris.
 
 
-Contributer:
+Author:
 Shouting Lyu,
 Chang Liu
+
+Director: Robin Hillyard
