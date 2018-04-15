@@ -13,9 +13,9 @@ public class BPNN {
     private double ETA_T = 0.5; // Learning rate of threshold
     private double accu;
 
-    // 附加动量项
-    //private static final double ETA_A = 0.3; // 动量常数0.1
-    //private double[][] in_hd_last; // 上一次的权值调整量
+    // Additional Momentum
+    //private static final double ETA_A = 0.3;
+    //private double[][] in_hd_last;
     //private double[][] hd_out_last;
 
     private int in_num; // input number
@@ -79,7 +79,7 @@ public class BPNN {
         //InitNetWork(gene_in_weight,gene_out_weight);
 
         int datanum = list.size(); // number of groups
-        int createsize = GetMaxNum(); // 比较创建存储每一层输出数据的数组
+        int createsize = GetMaxNum();
         out = new double[3][createsize];
 
         for (int iter = 0; iter < MaxTrain; iter++) {
@@ -117,7 +117,6 @@ public class BPNN {
 
     // Instantiate the weights for the network
     public void InitNetWork(double[][] gene_in_weight, double[][] gene_out_weight) {
-        // 初始化上一次权值量,范围为-0.5-0.5之间
         //in_hd_last = new double[in_num][hd_num];
         //hd_out_last = new double[hd_num][out_num];
         GetNums(in_num, out_num);
@@ -203,7 +202,7 @@ public class BPNN {
 
     public void CalcDelta(int cnd) {
 
-        int createsize = GetMaxNum(); // 比较创建数组
+        int createsize = GetMaxNum();
         delta = new double[3][createsize];
         // output layer data
         for (int i = 0; i < out_num; i++) {
@@ -211,7 +210,7 @@ public class BPNN {
                     * SigmoidDerivative(out[2][i]);
         }
 
-        // 计算隐层的delta值
+        // calculate the delta in hidden layer
         for (int i = 0; i < hd_num; i++) {
             double t = 0;
             for (int j = 0; j < out_num; j++)
@@ -220,14 +219,14 @@ public class BPNN {
         }
     }
 
-    // 更新BP神经网络的权值和阈值
+    // Update the weight and threshold in bp network
     public void UpdateNetWork() {
 
-        // 隐含层和输出层之间权值和阀值调整
+        // Adjust the weight and threshold between hidden layer and outputlayer
         for (int i = 0; i < hd_num; i++) {
             for (int j = 0; j < out_num; j++) {
-                hd_out_weight[i][j] += ETA_W * delta[2][j] * out[1][i]; // 未加权值动量项
-                /* 动量项
+                hd_out_weight[i][j] += ETA_W * delta[2][j] * out[1][i]; // no weighting momentum
+                /* Momentum
                  * hd_out_weight[i][j] += (ETA_A * hd_out_last[i][j] + ETA_W
                  * delta[2][j] * out[1][i]); hd_out_last[i][j] = ETA_A *
                  * hd_out_last[i][j] + ETA_W delta[2][j] * out[1][i];
@@ -238,11 +237,11 @@ public class BPNN {
         for (int i = 0; i < out_num; i++)
             hd_out_th[i] += ETA_T * delta[2][i];
 
-        // 输入层和隐含层之间权值和阀值调整
+        // Adjust the weight and threshold between input layer and hidden layer
         for (int i = 0; i < in_num; i++) {
             for (int j = 0; j < hd_num; j++) {
-                in_hd_weight[i][j] += ETA_W * delta[1][j] * out[0][i]; // 未加权值动量项
-                /* 动量项
+                in_hd_weight[i][j] += ETA_W * delta[1][j] * out[0][i]; // no weighting momentum
+                /* Momentum
                  * in_hd_weight[i][j] += (ETA_A * in_hd_last[i][j] + ETA_W
                  * delta[1][j] * out[0][i]); in_hd_last[i][j] = ETA_A *
                  * in_hd_last[i][j] + ETA_W delta[1][j] * out[0][i];
@@ -253,7 +252,7 @@ public class BPNN {
             in_hd_th[i] += ETA_T * delta[1][i];
     }
 
-    // 符号函数sign
+    // Sign function
     public int Sign(double x) {
         if (x > 0)
             return 1;
@@ -263,7 +262,7 @@ public class BPNN {
             return 0;
     }
 
-    // 返回最大值
+    // Return the maximum
     public double Maximum(double x, double y) {
         if (x >= y)
             return x;
@@ -271,7 +270,7 @@ public class BPNN {
             return y;
     }
 
-    // 返回最小值
+    // Return the minimum
     public double Minimum(double x, double y) {
         if (x <= y)
             return x;
@@ -308,7 +307,7 @@ public class BPNN {
         int datanum = arraylist.size();
         for (int cnd = 0; cnd < datanum; cnd++) {
             for (int i = 0; i < in_num; i++)
-                out[0][i] = arraylist.get(cnd).get(i); // 为输入节点赋值
+                out[0][i] = arraylist.get(cnd).get(i); // Assign values to input node
             Forward();
             for (int i = 0; i < out_num; i++) {
                 if (out[2][i] >= 0 && out[2][i] < 0.5)

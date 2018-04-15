@@ -6,24 +6,21 @@ public class Chromosome {
     private double[][] gene_in_weight;
     private double[][] gene_out_weight;
     private BPNN model;
-    //Score hasn't been initialized
     private double score;
 
     public Chromosome(int in_num, int out_num) {
         model = new BPNN(in_num, out_num);
-//        setGeneIntoNN();
-        // score=model.GetAccu();
     }
 
     public void setGeneIntoNN() {
         model.InitNetWork(gene_in_weight, gene_out_weight);
     }
+
     // Randomly choosing weights of the model
     public void initialRandomGene() {
         int hd_num = model.GetNums(model.getIn_num(), model.getOut_num());
         int in_num = model.getIn_num();
         int out_num = model.getOut_num();
-        // System.out.println(hd_num + " " + in_num + " " + out_num);
         gene_in_weight = new double[in_num][hd_num];
         for (int i = 0; i < in_num; i++)
             for (int j = 0; j < hd_num; j++) {
@@ -169,19 +166,25 @@ public class Chromosome {
         }
     }
 
-    public BPNN getModel() { return model; }
+    public BPNN getModel() {
+        return model;
+    }
 
     public double getScore() {
         return score;
     }
 
-    public void setScore(double score) { this.score = score; }
+    public void setScore(double score) {
+        this.score = score;
+    }
 
     public double[][] getGene_in_weight() {
         return gene_in_weight;
     }
 
-    private void setGene_in_weight(double[][] gene_in_weight) { this.gene_in_weight = gene_in_weight; }
+    private void setGene_in_weight(double[][] gene_in_weight) {
+        this.gene_in_weight = gene_in_weight;
+    }
 
     public double[][] getGene_out_weight() {
         return gene_out_weight;

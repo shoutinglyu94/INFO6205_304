@@ -8,73 +8,64 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 class DataUtil {
-
-    private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // 存放所有数据
-    private ArrayList<String> outlist = new ArrayList<String>(); // 存放输出数据，索引对应每个everylist的输出
-    private ArrayList<String> checklist = new ArrayList<String>();  //存放测试集的真实输出字符串
+    private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store all data
+    private ArrayList<String> outlist = new ArrayList<String>(); // Store input dataset，index is output of everylist
+    private ArrayList<String> checklist = new ArrayList<String>();  //Store the real output from test dataset
     private int in_num = 0;
-    private int out_num = 0; // 输入输出数据的个数
-    private int type_num = 0; // 输出的类型数量
-    private double[][] nom_data; //归一化输入数据中的最大值和最小值
-    private int in_data_num = 0; //提前获得输入数据的个数
+    private int out_num = 0;
+    private int type_num = 0; // output types
+    private double[][] nom_data;
+    private int in_data_num = 0;
 
-    // 获取输出类型的个数
     public int GetTypeNum() {
         return type_num;
     }
 
-    // 设置输出类型的个数
     public void SetTypeNum(int type_num) {
         this.type_num = type_num;
     }
 
-    // 获取输入数据的个数
     public int GetInNum() {
         return in_num;
     }
 
-    // 获取输出数据的个数
     public int GetOutNum() {
         return out_num;
     }
 
-    // 获取所有数据的数组
     public ArrayList<ArrayList<Double>> GetList() {
         return alllist;
     }
 
-    // 获取输出为字符串形式的数据
     public ArrayList<String> GetOutList() {
         return outlist;
     }
 
-    // 获取输出为字符串形式的数据
     public ArrayList<String> GetCheckList() {
         return checklist;
     }
 
-    //返回归一化数据所需最大最小值
+    // Return the max and min number required by normalization
     public double[][] GetMaxMin() {
-
         return nom_data;
     }
 
-    // 读取文件初始化数据
+    // Read the initial data form txt file
     public void ReadFile(String filepath, String sep, int flag)
             throws Exception {
 
-        ArrayList<Double> everylist = new ArrayList<Double>(); // 存放每一组输入输出数据
+        ArrayList<Double> everylist = new ArrayList<Double>();
         int readflag = flag; // flag=0,train;flag=1,test
         String encoding = "GBK";
         File file = new File(filepath);
-        if (file.isFile() && file.exists()) { // 判断文件是否存在
+        if (file.isFile() && file.exists()) {
             InputStreamReader read = new InputStreamReader(new FileInputStream(
-                    file), encoding);// 考虑到编码格式
+                    file), encoding);
             BufferedReader bufferedReader = new BufferedReader(read);
             String lineTxt = null;
             while ((lineTxt = bufferedReader.readLine()) != null) {
                 int in_number = 0;
-                String splits[] = lineTxt.split(sep); // 按','截取字符串
+                String splits[] = lineTxt.split(sep); // Split String by ","
                 if (readflag == 0) {
                     for (int i = 0; i < splits.length; i++)
                         try {
@@ -82,7 +73,7 @@ class DataUtil {
                             in_number++;
                         } catch (Exception e) {
                             if (!outlist.contains(splits[i]))
-                                outlist.add(splits[i]); // 存放字符串形式的输出数据
+                                outlist.add(splits[i]); // Store the output data(String)
                             for (int k = 0; k < type_num; k++) {
                                 everylist.add(0.0);
                             }
@@ -97,10 +88,10 @@ class DataUtil {
                             everylist.add(Normalize(Double.valueOf(splits[i]), nom_data[i][0], nom_data[i][1]));
                             in_number++;
                         } catch (Exception e) {
-                            checklist.add(splits[i]); // 存放字符串形式的输出数据
+                            checklist.add(splits[i]); // Store the output data(String)
                         }
                 }
-                alllist.add(everylist); // 存放所有数据
+                alllist.add(everylist); // Store the data
                 in_num = in_number;
                 out_num = type_num;
                 everylist = new ArrayList<Double>();
@@ -111,7 +102,7 @@ class DataUtil {
         }
     }
 
-    //向文件写入分类结果
+    //Write the classification results into the result file
     public void WriteFile(String filepath, ArrayList<ArrayList<Double>> list, int in_number, ArrayList<String> resultlist) throws IOException {
         File file = new File(filepath);
         FileWriter fw = null;
@@ -135,21 +126,20 @@ class DataUtil {
     }
 
 
-    //学习样本归一化,找到输入样本数据的最大值和最小值
+    //Normalization of training sample,find the maximum and minimum
     public void NormalizeData(String filepath) throws IOException {
-        //提前获得输入数据的个数   
         GetBeforIn(filepath);
         int flag = 1;
         nom_data = new double[in_data_num][2];
         String encoding = "GBK";
         File file = new File(filepath);
-        if (file.isFile() && file.exists()) { // 判断文件是否存在
+        if (file.isFile() && file.exists()) {
             InputStreamReader read = new InputStreamReader(new FileInputStream(
-                    file), encoding);// 考虑到编码格式
+                    file), encoding);
             BufferedReader bufferedReader = new BufferedReader(read);
             String lineTxt = null;
             while ((lineTxt = bufferedReader.readLine()) != null) {
-                String splits[] = lineTxt.split(","); // 按','截取字符串
+                String splits[] = lineTxt.split(",");
                 for (int i = 0; i < splits.length - 1; i++) {
                     if (flag == 1) {
                         nom_data[i][0] = Double.valueOf(splits[i]);
@@ -167,14 +157,13 @@ class DataUtil {
         }
     }
 
-    //归一化前获得输入数据的个数
+    //Get the input data numbers before normalizaiton
     public void GetBeforIn(String filepath) throws IOException {
         String encoding = "GBK";
         File file = new File(filepath);
-        if (file.isFile() && file.exists()) { // 判断文件是否存在
+        if (file.isFile() && file.exists()) {
             InputStreamReader read = new InputStreamReader(new FileInputStream(
-                    file), encoding);// 考虑到编码格式
-            //提前获得输入数据的个数
+                    file), encoding);
             BufferedReader beforeReader = new BufferedReader(read);
             String beforetext = beforeReader.readLine();
             String splits[] = beforetext.split(",");
@@ -183,7 +172,7 @@ class DataUtil {
         }
     }
 
-    //归一化公式
+    // Normalize
     public double Normalize(double x, double max, double min) {
         double y = 0.1 + 0.8 * (x - min) / (max - min);
         return y;

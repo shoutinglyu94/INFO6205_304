@@ -16,15 +16,16 @@ public class GA {
     private double[] bestscoreList;
     private double[][] bestIn;
     private double[][] bestOut;
-    ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
-    ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
+    private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
+    private ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
 
     private int geneI;//bestIn bestOut
 
     public GA() {
-        this.scoreList = new double[maxIterNum+1];
-        bestscoreList = new double[maxIterNum+1];
+        this.scoreList = new double[maxIterNum + 1];
+        this.bestscoreList = new double[maxIterNum + 1];
     }
+
     public void caculte() throws Exception {
         int in_num = 0, out_num = 0; // Input Number and Output Number
         DataUtil dataUtil = new DataUtil(); // Helper Class
@@ -48,8 +49,8 @@ public class GA {
     }
 
     /**
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:ResultsPrint Print out the results for each generation
+     * @author ShoutingLyu, ChangLiu
+     * @description Print out the results for each generation
      */
     private void print() {
         System.out.println("--------------------------------");
@@ -61,12 +62,11 @@ public class GA {
         System.out.println("geneI:" + geneI);
         scoreList[generation] = averageScore;
         bestscoreList[generation] = bestScore;
-        //  System.out.println("geneI:" + geneI + "\tx:" + x + "\ty:" + y);
     }
 
     /**
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:FirstGenerationInitiation Randomly choosing and setting weights into genes
+     * @author ShoutingLyu, ChangLiu
+     * @description Create the 1st generation and randomly choose and set weight into genes
      */
     private void init(int in_num, int out_num, ArrayList<ArrayList<Double>> alllist) throws IOException {
         population = new PriorityQueue<>(new ChromosomeComparator());
@@ -76,31 +76,30 @@ public class GA {
             setChromosomeScore(chro);
             population.offer(chro);
         }
-        this.bestScore = 1/population.peek().getScore();
+        this.bestScore = 1 / population.peek().getScore();
         bestIn = population.peek().getGene_in_weight();
         bestOut = population.peek().getGene_out_weight();
-        this.worstScore = 1/population.peek().getScore();
+        this.worstScore = 1 / population.peek().getScore();
         totalScore = 0;
         for (Chromosome chro : population) {
-            if (1/chro.getScore() < worstScore) { // Set the worst score
-                this.worstScore = 1/chro.getScore();
+            if (1 / chro.getScore() < worstScore) { // Set the worst score
+                this.worstScore = 1 / chro.getScore();
             }
-            this.totalScore += (1/chro.getScore());
+            this.totalScore += (1 / chro.getScore());
         }
         this.averageScore = totalScore / popSize;
     }
 
 
-
     /**
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:Evolvement
+     * @author ShoutingLyu, ChangLiu
+     * @description Evolvement
      */
     private void evolve() throws IOException {
         // Generate the children generation
         ArrayList<Chromosome> childList = new ArrayList<>();
         System.out.println("Here is the " + generation + "th generation's evolvement.");
-        while (childList.size() < 2*popSize) {
+        while (childList.size() < 2 * popSize) {
             Chromosome p1 = getParentChromosome();
             Chromosome p2 = getParentChromosome();
             List<Chromosome> children = Chromosome.genetic(p1, p2);
@@ -113,13 +112,13 @@ public class GA {
         // Gene Mutation
         mutation(childList);
         PriorityQueue<Chromosome> childPopulation = new PriorityQueue<>(new ChromosomeComparator());
-        for(Chromosome chro: childList){
+        for (Chromosome chro : childList) {
             setChromosomeScore(chro);
             childPopulation.offer(chro);
         }
 
         PriorityQueue<Chromosome> resultPopulation = new PriorityQueue<>(new ChromosomeComparator());
-        for(int i=0;i<popSize/2;i++){
+        for (int i = 0; i < popSize / 2; i++) {
             resultPopulation.offer(childPopulation.poll());
             resultPopulation.offer(population.poll());
         }
@@ -132,9 +131,9 @@ public class GA {
         p1.clear();
         p2.clear();
         L1.clear();
-        L1=null;
+        L1 = null;
         p1 = null;
-        p2 =null;
+        p2 = null;
         // Caculate the fitness of the new generation
         caculteScore();
 
@@ -142,15 +141,15 @@ public class GA {
 
     /**
      * @return
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:SelectSurvivor Return a survival individual form parent generation using Roulette Algorithm
+     * @author ShoutingLyu, ChangLiu
+     * @description Select an individual from parent generation using Roulette Algorithm
      */
     private Chromosome getParentChromosome() {
         double slice = Math.random() * totalScore;
         double sum = 0;
         for (Chromosome chro : population) {
-            sum += 1/chro.getScore();
-            if (sum > slice && 1/chro.getScore() >= averageScore) {
+            sum += 1 / chro.getScore();
+            if (sum > slice && 1 / chro.getScore() >= averageScore) {
                 return chro;
             }
         }
@@ -158,23 +157,23 @@ public class GA {
     }
 
     /**
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:CaculatePopulationFitness
+     * @author ShoutingLyu, ChangLiu
+     * @description Calculate best, worst, average, and total fitness for a generation
      */
     private void caculteScore() throws IOException {
-        if(1/population.peek().getScore()>bestScore){
-            bestScore = 1/population.peek().getScore();
+        if (1 / population.peek().getScore() > bestScore) {
+            bestScore = 1 / population.peek().getScore();
             geneI = generation;
             bestIn = population.peek().getGene_in_weight();
             bestOut = population.peek().getGene_out_weight();
         }
-        worstScore = 1/population.peek().getScore();
+        worstScore = 1 / population.peek().getScore();
         totalScore = 0;
         for (Chromosome chro : population) {
-            if (1/chro.getScore() < worstScore) { // Set the worst score
-                worstScore = 1/chro.getScore();
+            if (1 / chro.getScore() < worstScore) { // Set the worst score
+                worstScore = 1 / chro.getScore();
             }
-            totalScore += (1/chro.getScore());
+            totalScore += (1 / chro.getScore());
         }
         averageScore = totalScore / popSize;
         // If the average score is better than the best score, reset the average score
@@ -183,8 +182,9 @@ public class GA {
     }
 
     /**
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description:Mutation
+     * @param mutationList
+     * @author ShoutingLyu, ChangLiu
+     * @description Mutate some of the individuals randomly among the mutationList
      */
     private void mutation(ArrayList<Chromosome> mutationList) {
         for (Chromosome chro : mutationList) {
@@ -198,8 +198,8 @@ public class GA {
 
     /**
      * @param chro
-     * @Author:ShoutingLyu,ChangLiu
-     * @Description: Caculate and set individual's score(average accuracy of trained model)
+     * @author ShoutingLyu, ChangLiu
+     * @description Build the gene, train the model, and calculate the score
      */
     private void setChromosomeScore(Chromosome chro) throws IOException {
         if (chro == null) {
@@ -216,11 +216,11 @@ public class GA {
     class ChromosomeComparator implements Comparator<Chromosome> {
         @Override
         public int compare(Chromosome o1, Chromosome o2) {
-            if(o1.getScore() <o2.getScore()){
+            if (o1.getScore() < o2.getScore()) {
                 return -1;
-            }else if(o1.getScore()>o2.getScore()){
+            } else if (o1.getScore() > o2.getScore()) {
                 return +1;
-            }else return 0;
+            } else return 0;
         }
     }
 
