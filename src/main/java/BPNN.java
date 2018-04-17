@@ -1,4 +1,7 @@
-﻿
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -110,7 +113,7 @@ public class BPNN {
 
     }
 
-    // Get hidden number from input number and output number，in_number、out_number
+    // Get hidden number from input number and output number，in_number out_number
     public int GetNums(int in_number, int out_number) {
         in_num = in_number;
         out_num = out_number;

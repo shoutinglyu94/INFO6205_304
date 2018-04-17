@@ -19,7 +19,7 @@ public class GA {
     private double[][] bestOut;
     private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store All Data
     private ArrayList<String> outlist = new ArrayList<String>(); // Store String Name of Types
-    private String memoryOnDisk="C:\\NEU2017\\Algorithum\\Final_Project\\iris_bp\\iris_bp\\train.txt";//The location of Memory
+    private String memoryOnDisk="train.txt";//The location of Memory
     private int geneI;//bestIn bestOut
 
     public GA() {

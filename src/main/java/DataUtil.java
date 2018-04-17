@@ -1,4 +1,4 @@
-﻿import java.io.BufferedReader;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-class DataUtil {
+public class DataUtil {
     private ArrayList<ArrayList<Double>> alllist = new ArrayList<ArrayList<Double>>(); // Store all data
-    private ArrayList<String> outlist = new ArrayList<String>(); // Store input dataset，index is output of everylist
+    private ArrayList<String> outlist = new ArrayList<String>(); // Store input dataset,index is output of everylist
     private ArrayList<String> checklist = new ArrayList<String>();  //Store the real output from test dataset
     private int in_num = 0;
     private int out_num = 0;
